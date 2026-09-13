@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Tagi wymuszające tryb pełnoekranowy na iPhonie (PWA) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="mObywatel">
+    
+    <title>mObywatel 2.0</title>
+    
+    <!-- Ikona aplikacji na pulpicie iOS oraz powiązanie plików -->
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Biblioteka generująca kody QR -->
+    <script src="https://cloudflare.com"></script>
+</head>
+<body>
+
+<div class="viewport">
+    <div class="notch"></div>
+    
+    <div class="status-bar">
+        <span id="ios-clock-render">12:00</span>
+        <div>📶 🔋</div>
+    </div>
+
+    <!-- EKRAN 0: KONFIGURATOR -->
+    <div class="screen active" id="scr-init">
+        <div class="init-h1">Konfigurator Systemowy mObywatel</div>
+        <div class="init-field"><label>Zdjęcie użytkownika</label><input type="file" id="f-img-load" accept="image/*"></div>
+        <div class="init-field"><label>Imię (imiona)</label><input type="text" id="f-name" value="Jan Jakub"></div>
+        <div class="init-field"><label>Nazwisko</label><input type="text" id="f-surname" value="Kowalski"></div>
+        <div class="init-field"><label>Data Urodzenia</label><input type="text" id="f-date" value="12.04.1994"></div>
+        <div class="init-field"><label>PESEL</label><input type="text" id="f-pesel" value="94041207562"></div>
+        <div class="init-field"><label>Seria i numer mDowodu</label><input type="text" id="f-doc" value="AXB 112233"></div>
+        <button class="init-btn" id="f-action-save">Zainicjuj HUD Aplikacji</button>
+    </div>
+
+    <!-- EKRAN 1: EKRAN PIN -->
+    <div class="screen" id="scr-auth">
+        <div class="mo-badge">m</div>
+        <h1 class="auth-h1">Wpisz kod PIN</h1>
+        <p class="auth-p">Zaloguj się do aplikacji mObywatel</p>
+        
+        <div class="dots-row">
+            <div class="dot" id="ad-1"></div><div class="dot" id="ad-2"></div><div class="dot" id="ad-3"></div><div class="dot" id="ad-4"></div>
+        </div>
+
+        <div class="pad-grid">
+            <button onclick="pressPinButton(1)">1</button><button onclick="pressPinButton(2)">2</button><button onclick="pressPinButton(3)">3</button>
+            <button onclick="pressPinButton(4)">4</button><button onclick="pressPinButton(5)">5</button><button onclick="pressPinButton(6)">6</button>
+            <button onclick="pressPinButton(7)">7</button><button onclick="pressPinButton(8)">8</button><button onclick="pressPinButton(9)">9</button>
+            <button style="background:transparent; font-size:15px;">❌</button><button onclick="pressPinButton(0)">0</button><button style="background:transparent; font-size:16px;">👤</button>
+        </div>
+    </div>
+
+    <!-- EKRAN 2: PULPIT GŁÓWNY -->
+    <div class="screen" id="scr-pulpit">
+        <div class="mo-top-nav-bar">mObywatel</div>
+        <div class="mo-welcome-banner">
+            <div class="mo-profile-img-circle"><img class="tgt-user-photo" src="" alt=""></div>
+            <div>
+                <div class="mo-welcome-title">Dzień dobry</div>
+                <div class="mo-welcome-username" id="hud-pulpit-title-name">Jan Jakub</div>
+            </div>
+        </div>
+        
+        <p class="mo-hud-section-title">Twoje dokumenty</p>
+        <div class="mo-slider-box">
+            <div class="mo-document-widget-card" onclick="navHudTo('scr-mcard-detail')">
+                <div class="mo-dwc-top"><span>mDowód</span><span>🇵🇱</span></div>
+                <div class="mo-dwc-bottom">
+                    <div id="hud-pulpit-card-fullname">KOWALSKI JAN JAKUB</div>
+                    <div id="hud-pulpit-card-pesel" style="font-size:11px; opacity:0.75; margin-top:2px;">PESEL: 94041207562</div>
+                </div>
+            </div>
+        </div>
+
+        <p class="mo-hud-section-title">Usługi</p>
+        <div class="mo-services-tile-grid">
+            <div class="mo-service-node"><span class="mo-sn-ico">🔒</span><span class="mo-sn-name">Zastrzeż PESEL</span></div>
+            <div class="mo-service-node"><span class="mo-sn-ico">💊</span><span class="mo-sn-name">E-recepty</span></div>
+        </div>
+    </div>
+
+    <!-- EKRAN 3: SZCZEGÓŁY MDOWODU -->
+    <div class="screen" id="scr-mcard-detail">
+        <div class="mo-top-nav-bar">
+            <span class="mo-back-btn" onclick="navHudTo('scr-pulpit')">←</span>
+            <span>mDowód</span>
+        </div>
+
+        <div class="mo-validity-strip">
+            <span class="mo-vs-lbl">Czas ważności danych</span>
+            <span class="mo-vs-time internal-timer-lbl">12:00:00</span>
+        </div>
+        <div class="mo-vs-progress"><div class="mo-vs-fill" id="mo-hud-progressbar"></div></div>
+
+        <div class="mo-official-matrix-card">
+            <div class="mo-omc-top">
+                <div class="mo-omc-header-container">
+                    <img class="mo-omc-eagle" src="https://wikimedia.org" alt="Godło">
+                    <span class="mo-omc-title">mDowód</span>
+                </div>
+                <div class="mo-omc-flag"><div class="mo-omc-flag-wave"></div></div>
+            </div>
+            
+            <div class="mo-omc-body">
+                <div class="mo-omc-photo"><img class="tgt-user-photo" src="" alt="User profile photo"></div>
+                <div class="mo-omc-fields">
+                    <div class="mo-omc-fblock"><span class="mo-omc-fl">Nazwisko</span><span class="mo-omc-fv" id="md-surname">KOWALSKI</span></div>
+                    <div class="mo-omc-fblock"><span class="mo-omc-fl">Imię (imiona)</span><span class="mo-omc-fv" id="md-name">JAN JAKUB</span></div>
+                    <div class="mo-omc-fblock"><span class="mo-omc-fl">Obywatelstwo</span><span class="mo-omc-fv">POLSKIE</span></div>
+                    <div class="mo-omc-fblock"><span class="mo-omc-fl">Data urodzenia</span><span class="mo-omc-fv" id="md-date">12.04.1994</span></div>
+                    <div class="mo-omc-fblock"><span class="mo-omc-fl">Numer PESEL</span><span class="mo-omc-fv" id="md-pesel">94041207562</span></div>
+                    <div class="mo-omc-fblock"><span class="mo-omc-fl">Seria i numer</span><span class="mo-omc-fv" id="md-doc">AXB 112233</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mo-hud-qr-container">
+            <div class="mo-hud-qr-title">KOD WERYFIKACYJNY QR</div>
+            <div id="qr-canvas-holder"></div>
+            <div class="mo-hud-qr-code-txt" id="qr-numerical-code">541 982</div>
+        </div>
+    </div>
+
+    <!-- HUD TAB BAR (1:1 KOLEJNOŚĆ COI) -->
+    <div class="mo-hud-tab-bar" id="mo-global-hud-bar">
+        <div class="mo-hud-tab-node active" id="node-pulpit" onclick="navHudTo('scr-pulpit')"><span class="ico">💳</span><span>Dokumenty</span></div>
+        <div class="mo-hud-tab-node"><span class="ico">💼</span><span>Usługi</span></div>
+        <div class="mo-hud-tab-node" onclick="navHudTo('scr-mcard-detail')"><span class="ico">🔳</span><span>Kod QR</span></div>
+        <div class="mo-hud-tab-node"><span class="ico">⚙️</span><span>Więcej</span></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
