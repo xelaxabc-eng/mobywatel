@@ -3,19 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- Tagi wymuszające tryb pełnoekranowy PWA na iPhonie -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="mObywatel">
-    
     <title>mObywatel 2.0</title>
-    
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    
-    <!-- BEZPIECZNA BIBLIOTEKA QR (Naprawiony błąd braku skryptu) -->
+    <!-- Oficjalna biblioteka generująca kody QR -->
     <script src="https://cloudflare.com"></script>
 </head>
 <body>
@@ -28,9 +23,9 @@
         <div>📶 🔋</div>
     </div>
 
-    <!-- EKRAN 0: KONFIGURATOR -->
+    <!-- EKRAN INITIALIZACJI DANYCH -->
     <div class="screen active" id="scr-init">
-        <div class="init-h1">Konfigurator Systemowy mObywatel</div>
+        <div class="init-h1">Konfigurator mObywatel</div>
         <div class="init-field"><label>Zdjęcie użytkownika</label><input type="file" id="f-img-load" accept="image/*"></div>
         <div class="init-field"><label>Imię (imiona)</label><input type="text" id="f-name" value="Jan Jakub"></div>
         <div class="init-field"><label>Nazwisko</label><input type="text" id="f-surname" value="Kowalski"></div>
@@ -40,16 +35,14 @@
         <button class="init-btn" id="f-action-save">Zainicjuj HUD Aplikacji</button>
     </div>
 
-    <!-- EKRAN 1: EKRAN PIN -->
+    <!-- EKRAN LOGOWANIA KODEM PIN -->
     <div class="screen" id="scr-auth">
         <div class="mo-badge">m</div>
         <h1 class="auth-h1">Wpisz kod PIN</h1>
         <p class="auth-p">Zaloguj się do aplikacji mObywatel</p>
-        
         <div class="dots-row">
             <div class="dot" id="ad-1"></div><div class="dot" id="ad-2"></div><div class="dot" id="ad-3"></div><div class="dot" id="ad-4"></div>
         </div>
-
         <div class="pad-grid">
             <button onclick="pressPinButton(1)">1</button><button onclick="pressPinButton(2)">2</button><button onclick="pressPinButton(3)">3</button>
             <button onclick="pressPinButton(4)">4</button><button onclick="pressPinButton(5)">5</button><button onclick="pressPinButton(6)">6</button>
@@ -58,7 +51,7 @@
         </div>
     </div>
 
-    <!-- EKRAN 2: PULPIT GŁÓWNY -->
+    <!-- EKRAN GŁÓWNY (PORTFEL DOKUMENTÓW) -->
     <div class="screen" id="scr-pulpit">
         <div class="mo-top-nav-bar">mObywatel</div>
         <div class="mo-welcome-banner">
@@ -68,7 +61,6 @@
                 <div class="mo-welcome-username" id="hud-pulpit-title-name">Jan Jakub</div>
             </div>
         </div>
-        
         <p class="mo-hud-section-title">Twoje dokumenty</p>
         <div class="mo-slider-box">
             <div class="mo-document-widget-card" onclick="navHudTo('scr-mcard-detail')">
@@ -79,7 +71,6 @@
                 </div>
             </div>
         </div>
-
         <p class="mo-hud-section-title">Usługi</p>
         <div class="mo-services-tile-grid">
             <div class="mo-service-node"><span class="mo-sn-ico">🔒</span><span class="mo-sn-name">Zastrzeż PESEL</span></div>
@@ -87,19 +78,17 @@
         </div>
     </div>
 
-    <!-- EKRAN 3: SZCZEGÓŁY MDOWODU -->
+    <!-- EKRAN SZCZEGÓŁÓW MDOWODU -->
     <div class="screen" id="scr-mcard-detail">
         <div class="mo-top-nav-bar">
             <span class="mo-back-btn" onclick="navHudTo('scr-pulpit')">←</span>
             <span>mDowód</span>
         </div>
-
         <div class="mo-validity-strip">
             <span class="mo-vs-lbl">Czas ważności danych</span>
             <span class="mo-vs-time internal-timer-lbl">12:00:00</span>
         </div>
         <div class="mo-vs-progress"><div class="mo-vs-fill" id="mo-hud-progressbar"></div></div>
-
         <div class="mo-official-matrix-card">
             <div class="mo-omc-top">
                 <div class="mo-omc-header-container">
@@ -108,7 +97,6 @@
                 </div>
                 <div class="mo-omc-flag"><div class="mo-omc-flag-wave"></div></div>
             </div>
-            
             <div class="mo-omc-body">
                 <div class="mo-omc-photo"><img class="tgt-user-photo" src="" alt="User profile photo"></div>
                 <div class="mo-omc-fields">
@@ -121,7 +109,6 @@
                 </div>
             </div>
         </div>
-
         <div class="mo-hud-qr-container">
             <div class="mo-hud-qr-title">KOD WERYFIKACYJNY QR</div>
             <div id="qr-canvas-holder"></div>
@@ -129,7 +116,7 @@
         </div>
     </div>
 
-    <!-- HUD TAB BAR (1:1 KOLEJNOŚĆ COI) -->
+    <!-- DOLNE MENU HUD -->
     <div class="mo-hud-tab-bar" id="mo-global-hud-bar">
         <div class="mo-hud-tab-node active" id="node-pulpit" onclick="navHudTo('scr-pulpit')"><span class="ico">💳</span><span>Dokumenty</span></div>
         <div class="mo-hud-tab-node"><span class="ico">💼</span><span>Usługi</span></div>
@@ -139,5 +126,46 @@
 </div>
 
 <script src="script.js"></script>
+<script>
+    // Bezpieczne uruchomienie przycisku inicjalizacji po pełnym wczytaniu DOM i biblioteki QRCode
+    document.getElementById('f-action-save').addEventListener('click', function() {
+        const name = document.getElementById('f-name').value;
+        const surname = document.getElementById('f-surname').value;
+        const date = document.getElementById('f-date').value;
+        const pesel = document.getElementById('f-pesel').value;
+        const doc = document.getElementById('f-doc').value;
+
+        document.getElementById('hud-pulpit-title-name').innerText = name;
+        document.getElementById('hud-pulpit-card-fullname').innerText = `${surname.toUpperCase()} ${name.toUpperCase()}`;
+        document.getElementById('hud-pulpit-card-pesel').innerText = `PESEL: ${pesel}`;
+        
+        document.getElementById('md-name').innerText = name.toUpperCase();
+        document.getElementById('md-surname').innerText = surname.toUpperCase();
+        document.getElementById('md-date').innerText = date;
+        document.getElementById('md-pesel').innerText = pesel;
+        document.getElementById('md-doc').innerText = doc.toUpperCase();
+
+        document.querySelectorAll('.tgt-user-photo').forEach(img => {
+            img.src = rawPhotoDataBlob ? rawPhotoDataBlob : "https://placeholder.com";
+        });
+
+        // Dynamiczne generowanie kodu QR z obsługą błędów biblioteki zewnętrznej
+        try {
+            const qrBox = document.getElementById('qr-canvas-holder');
+            qrBox.innerHTML = "";
+            new QRCode(qrBox, {
+                text: `mObywatel2.0|${surname.toUpperCase()}|${name.toUpperCase()}|${pesel}`,
+                width: 140,
+                height: 140,
+                colorDark: "#1f4294",
+                colorLight: "#ffffff"
+            });
+        } catch(e) {
+            console.log("Błąd generatora QR, pomijam rysowanie:", e);
+        }
+
+        navHudTo('scr-auth');
+    });
+</script>
 </body>
 </html>
