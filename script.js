@@ -4,7 +4,7 @@ let clockRenderTimerId = null;
 
 // Obsługa wgrywania zdjęcia
 document.getElementById('f-img-load').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+    const file = e.target.files;
     if (file) { rawPhotoDataBlob = URL.createObjectURL(file); }
 });
 
